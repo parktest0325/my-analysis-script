@@ -7,10 +7,11 @@ SOURCES=$PREFIX/etc/apt/sources.list.d/auto-installer.sources
 HERE=$(cd "$(dirname "$0")" && pwd)
 LOG=/tmp/auto-tweak.log
 
-ok()   { printf '  + %s\n' "$1"; }
-skip() { printf '  ~ %s (already in another sources file)\n' "$1"; }
-fail() { printf '  ! %s\n' "$1"; [[ -n "${2:-}" ]] && sed 's/^/    /' <<< "$2"; }
-step() { printf '\n[%s]\n' "$1"; }
+g=$'\033[32m'; r=$'\033[31m'; y=$'\033[33m'; b=$'\033[1m'; n=$'\033[0m'
+ok()   { printf '  %s[OK]%s   %s\n'   "$g" "$n" "$1"; }
+skip() { printf '  %s[SKIP]%s %s (already in another sources file)\n' "$y" "$n" "$1"; }
+fail() { printf '  %s[FAIL]%s %s\n'   "$r" "$n" "$1"; [[ -n "${2:-}" ]] && sed 's/^/    /' <<< "$2"; }
+step() { printf '\n%s[%s]%s\n' "$b" "$1" "$n"; }
 clean() { sed 's/#.*//;s/[[:space:]]*$//;s/^[[:space:]]*//' "$1" | grep -v '^$' || true; }
 
 [[ $EUID -eq 0 ]] || { echo "must run as root" >&2; exit 1; }
@@ -82,7 +83,7 @@ else
 fi
 
 if [[ -s "$HERE/additional.txt" ]]; then
-  printf '\n[recommended manual installs]\n'
+  printf '\n%s[recommended manual installs]%s\n' "$b" "$n"
   cat "$HERE/additional.txt"
 fi
 echo

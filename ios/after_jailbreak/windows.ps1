@@ -1,6 +1,19 @@
 # Continue (not Stop): in PS5.1, Stop turns any native-exe stderr line into a throw, which makes
 # plink's "Keyboard-interactive authentication prompts from server" chatter abort the whole script.
 $ErrorActionPreference = "Continue"
+
+# PS5.1 conhost doesn't reliably honor ANSI escape sequences from native exe output, so strip
+# device.sh's ANSI codes and re-color via Write-Host -ForegroundColor (Win32 console attribute).
+function Format-DeviceLine {
+  process {
+    $line = $_ -replace '\x1b\[\d+m', ''
+    if     ($line -match '^(\s*)\[OK\](.*)$')   { Write-Host $matches[1] -NoNewline; Write-Host '[OK]'   -NoNewline -ForegroundColor Green;  Write-Host $matches[2] }
+    elseif ($line -match '^(\s*)\[FAIL\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[FAIL]' -NoNewline -ForegroundColor Red;    Write-Host $matches[2] }
+    elseif ($line -match '^(\s*)\[SKIP\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[SKIP]' -NoNewline -ForegroundColor Yellow; Write-Host $matches[2] }
+    elseif ($line -match '^\[.+\]$')            { Write-Host $line -ForegroundColor Cyan }
+    else                                        { Write-Host $line }
+  }
+}
 $Here = $PSScriptRoot
 
 $envFile = Join-Path $Here ".env"
@@ -93,7 +106,7 @@ try {
   & pscp @opts -r "$Here\repo.txt" "$Here\tweak.txt" "$Here\additional.txt" "$Here\device.sh" "$Here\_ipas" "${target}:$remote/" 2>$null | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "upload failed" }
 
-  & plink @opts $target "chmod +x $remote/device.sh && $remote/device.sh" 2>$null
+  & plink @opts $target "chmod +x $remote/device.sh && $remote/device.sh" 2>$null | Format-DeviceLine
   if ($LASTEXITCODE -ne 0) { throw "install failed" }
 }
 catch {
