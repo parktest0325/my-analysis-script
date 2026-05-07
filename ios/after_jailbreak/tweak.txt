@@ -1,0 +1,5 @@
+openssh
+ws.hbang.newterm3
+re.frida.server
+com.gamegod.igg.rootless
+com.opa334.trollstorelite
