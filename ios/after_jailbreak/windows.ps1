@@ -1,6 +1,12 @@
 # Continue (not Stop): in PS5.1, Stop turns any native-exe stderr line into a throw, which makes
 # plink's "Keyboard-interactive authentication prompts from server" chatter abort the whole script.
 $ErrorActionPreference = "Continue"
+
+# device.sh emits UTF-8 (✓ ✗ ~). Both PS's native-exe decode AND the console's active code page
+# must be UTF-8, otherwise CP949/CP437 etc. render the bytes as "??".
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001 | Out-Null
 $Here = $PSScriptRoot
 
 $envFile = Join-Path $Here ".env"
