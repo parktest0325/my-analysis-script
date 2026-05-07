@@ -7,9 +7,10 @@ $ErrorActionPreference = "Continue"
 function Format-DeviceLine {
   process {
     $line = $_ -replace '\x1b\[\d+m', ''
-    if     ($line -match '^(\s*)\[OK\](.*)$')   { Write-Host $matches[1] -NoNewline; Write-Host '[OK]'   -NoNewline -ForegroundColor Green;  Write-Host $matches[2] }
-    elseif ($line -match '^(\s*)\[FAIL\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[FAIL]' -NoNewline -ForegroundColor Red;    Write-Host $matches[2] }
-    elseif ($line -match '^(\s*)\[SKIP\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[SKIP]' -NoNewline -ForegroundColor Yellow; Write-Host $matches[2] }
+    if     ($line -match '^(\s*)\[OK\](.*)$')   { Write-Host $matches[1] -NoNewline; Write-Host '[OK]'   -NoNewline -ForegroundColor Green;   Write-Host $matches[2] }
+    elseif ($line -match '^(\s*)\[FAIL\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[FAIL]' -NoNewline -ForegroundColor Red;     Write-Host $matches[2] }
+    elseif ($line -match '^(\s*)\[WARN\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[WARN]' -NoNewline -ForegroundColor Magenta; Write-Host $matches[2] }
+    elseif ($line -match '^(\s*)\[SKIP\](.*)$') { Write-Host $matches[1] -NoNewline; Write-Host '[SKIP]' -NoNewline -ForegroundColor Yellow;  Write-Host $matches[2] }
     elseif ($line -match '^\[.+\]$')            { Write-Host $line -ForegroundColor Cyan }
     else                                        { Write-Host $line }
   }

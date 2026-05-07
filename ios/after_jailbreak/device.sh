@@ -7,9 +7,10 @@ SOURCES=$PREFIX/etc/apt/sources.list.d/auto-installer.sources
 HERE=$(cd "$(dirname "$0")" && pwd)
 LOG=/tmp/auto-tweak.log
 
-g=$'\033[32m'; r=$'\033[31m'; y=$'\033[33m'; b=$'\033[1m'; n=$'\033[0m'
+g=$'\033[32m'; r=$'\033[31m'; y=$'\033[33m'; m=$'\033[35m'; b=$'\033[1m'; n=$'\033[0m'
 ok()   { printf '  %s[OK]%s   %s\n'   "$g" "$n" "$1"; }
 skip() { printf '  %s[SKIP]%s %s (already in another sources file)\n' "$y" "$n" "$1"; }
+warn() { printf '  %s[WARN]%s %s\n'   "$m" "$n" "$1"; [[ -n "${2:-}" ]] && sed 's/^/    /' <<< "$2"; }
 fail() { printf '  %s[FAIL]%s %s\n'   "$r" "$n" "$1"; [[ -n "${2:-}" ]] && sed 's/^/    /' <<< "$2"; }
 step() { printf '\n%s[%s]%s\n' "$b" "$1" "$n"; }
 clean() { sed 's/#.*//;s/[[:space:]]*$//;s/^[[:space:]]*//' "$1" | grep -v '^$' || true; }
@@ -41,7 +42,7 @@ if [[ -z "$errs" ]]; then
 else
   # Pre-existing broken repos (palera.in pubkey, bigboss unsigned, etc.) are not ours;
   # surface them but don't bail — per-package install will report what actually failed.
-  fail "warnings (proceeding to install)" "$errs"
+  warn "warnings (proceeding to install)" "$errs"
 fi
 
 step "install tweaks"
